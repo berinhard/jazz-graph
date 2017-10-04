@@ -1,0 +1,6 @@
+discogs-client==2.2.1
+lxml==3.8.0
+networkx==2.0
+requests==2.18.3
+termcolor==1.1.0
+Unipath==1.1
