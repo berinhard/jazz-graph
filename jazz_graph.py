@@ -2,8 +2,9 @@ from unipath import Path
 import json
 import networkx as nx
 
-GRAPH_JSON_FILE = Path(__file__).parent.child('data', 'jazz_musicians_graph.json')
+from termcolor import cprint
 
+GRAPH_JSON_FILE = Path(__file__).parent.child('data', 'jazz_musicians_graph.json')
 
 def flatten_edges(master_graph):
     for source, targets in graph.adjacency():
@@ -71,25 +72,25 @@ if __name__ == '__main__':
 
     recorded_graph = extract_recorded_graph(graph)
 
-    print("Top 10 Recorders")
+    print()
+    cprint("##### Top 10 Recorders", 'yellow')
     top_10, degrees = top_10_recorders(recorded_graph, graph)
     for i, node in enumerate(top_10[:10]):
         data = graph.node[node]
         instruments = '/'.join(data['roles'])
-        print("{}) {} / score: {}".format(i + 1, '{} - {}'.format(data['name'], instruments), degrees[node]))
+        cprint("{}) {} / score: {}".format(i + 1, '{} - {}'.format(data['name'], instruments), degrees[node]), 'white')
 
     print()
-    print("Top 10 Albuns")
+    cprint("##### Top 10 Albuns", 'yellow')
     top_10, eigenvector = top_10_albuns(recorded_graph, graph)
     for i, node in enumerate(top_10[:10]):
         data = graph.node[node]
-        print("{}) {} / score: {}".format(i + 1, '{} - {}'.format(data['title'], data['year']), eigenvector[node]))
+        cprint("{}) {} / score: {}".format(i + 1, '{} - {}'.format(data['title'], data['year']), eigenvector[node]), 'white')
 
-    played_with_graph = extract_played_with_graph(graph)
     top_10, side = top_10_side(played_with_graph, graph)
     print()
-    print("Top 10 Sidemen")
+    cprint("##### Top 10 Sidemen", 'yellow')
     for i, node in enumerate(top_10[:10]):
         data = graph.node[node]
         instruments = '/'.join(data['roles'])
-        print("{}) {} / score: {}".format(i + 1, '{} - {}'.format(data['name'], instruments), side[node]))
+        cprint("{}) {} / score: {}".format(i + 1, '{} - {}'.format(data['name'], instruments), side[node]), 'white')
