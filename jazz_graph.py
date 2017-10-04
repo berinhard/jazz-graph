@@ -25,7 +25,9 @@ def extract_recorded_graph(master_graph):
 
 def extract_played_with_graph(master_graph):
     graph = nx.Graph()
-    graph.add_nodes_from(master_graph.nodes())
+    for n, data in master_graph.nodes(data=True):
+        if data['type'] == 'MUSICIAN':
+            graph.add_node(n, **data)
 
     flatten = flatten_edges(master_graph)
     for source, target, data in flatten:
@@ -34,9 +36,6 @@ def extract_played_with_graph(master_graph):
         if not graph.has_edge(source, target):
             graph.add_edge(source, target, weight=1, **data)
         graph.edges[(source, target)]['weight'] += 1
-
-    isolates = nx.isolates(graph)
-    graph.remove_nodes_from([n for n in isolates])
 
     return graph
 
@@ -71,6 +70,14 @@ if __name__ == '__main__':
         graph.add_edges_from(graph_data['edges'])
 
     recorded_graph = extract_recorded_graph(graph)
+    played_with_graph = extract_played_with_graph(graph)
+    cprint('##### About the Graphs', 'yellow')
+    cprint('RECORDED Graph', 'red')
+    cprint("\t {} nodes".format(recorded_graph.number_of_nodes()))
+    cprint('\t {} edges'.format(recorded_graph.number_of_edges()))
+    cprint('PLAYED_WITH Graph', 'red')
+    cprint('\t {} nodes'.format(played_with_graph.number_of_nodes()))
+    cprint('\t {} edges'.format(played_with_graph.number_of_edges()))
 
     print()
     cprint("##### Top 10 Recorders", 'yellow')
