@@ -18,7 +18,10 @@ def extract_recorded_graph(master_graph):
     graph.add_nodes_from(master_graph.nodes())
 
     flatten = flatten_edges(master_graph)
-    graph.add_edges_from([(s, t) for s, t, r in flatten if r['type'] == 'RECORDED'])
+    for source, target, rel_data in flatten:
+        if rel_data['type'] != 'RECORDED':
+           continue
+        graph.add_edge(source, target, **rel_data)
 
     return graph
 
@@ -39,31 +42,30 @@ def extract_played_with_graph(master_graph):
 
     return graph
 
-
-def top_10_albuns(recorded_graph, master_graph):
-    centralities = nx.eigenvector_centrality(recorded_graph)
-    is_musician = lambda n: master_graph.node[n]['type'] == 'RELEASE'
-    sorted_nodes = [n for n in sorted(centralities, key=centralities.get, reverse=True) if is_musician(n)]
-    return sorted_nodes[:10], centralities
-
-
 def top_10_recorders(recorded_graph, master_graph):
     centralities = nx.degree_centrality(recorded_graph)
     is_musician = lambda n: master_graph.node[n]['type'] == 'MUSICIAN'
-    sorted_nodes = [n for n in sorted(centralities, key=centralities.get, reverse=True) if is_musician(n)]
+    sorted_centralities = sorted(centralities, key=centralities.get, reverse=True)
+    sorted_nodes = [n for n in sorted_centralities if is_musician(n)]
     return sorted_nodes[:10], centralities
 
+def top_10_prolifc_musicians(played_with_graph, master_graph):
+    centralities = nx.eigenvector_centrality(played_with_graph, weight='weight')
+    sorted_centralities = sorted(centralities, key=centralities.get, reverse=True)
+    return sorted_centralities[:10], centralities
 
-def top_10_side(recorded_graph, master_graph):
-    centralities = nx.eigenvector_centrality(recorded_graph, weight='weight')
-    is_musician = lambda n: master_graph.node[n]['type'] == 'MUSICIAN'
-    sorted_nodes = [n for n in sorted(centralities, key=centralities.get, reverse=True) if is_musician(n)]
+def top_10_albuns(recorded_graph, master_graph):
+    centralities = nx.eigenvector_centrality(recorded_graph)
+    is_album = lambda n: master_graph.node[n]['type'] == 'RELEASE'
+    sorted_centralities = sorted(centralities, key=centralities.get, reverse=True)
+    sorted_nodes = [n for n in sorted_centralities if is_album(n)]
     return sorted_nodes[:10], centralities
 
 
 if __name__ == '__main__':
-    graph = nx.MultiDiGraph()
+    import networkx as nx
 
+    graph = nx.MultiDiGraph()
     with open(GRAPH_JSON_FILE) as fd:
         graph_data = json.load(fd)
         graph.add_nodes_from(graph_data['nodes'].items())
@@ -94,9 +96,9 @@ if __name__ == '__main__':
         data = graph.node[node]
         cprint("{}) {} / score: {}".format(i + 1, '{} - {}'.format(data['title'], data['year']), eigenvector[node]), 'white')
 
-    top_10, side = top_10_side(played_with_graph, graph)
+    top_10, side = top_10_prolifc_musicians(played_with_graph, graph)
     print()
-    cprint("##### Top 10 Sidemen", 'yellow')
+    cprint("##### Top 10 Prolific Musicians", 'yellow')
     for i, node in enumerate(top_10[:10]):
         data = graph.node[node]
         instruments = '/'.join(data['roles'])
