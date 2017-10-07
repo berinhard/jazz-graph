@@ -37,7 +37,7 @@ def extract_played_with_graph(master_graph):
         if not data['type'] == 'PLAYED_WITH':
             continue
         if not graph.has_edge(source, target):
-            graph.add_edge(source, target, weight=1, **data)
+            graph.add_edge(source, target, weight=0, **data)
         graph.edges[(source, target)]['weight'] += 1
 
     return graph
