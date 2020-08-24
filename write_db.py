@@ -5,8 +5,8 @@ from unipath import Path
 
 graph_kwargs = {
     'host': 'localhost',
-    'http_port': 7475,
-    'bolt_port': 7688,
+    'http_port': 7474,
+    'bolt_port': 7687,
 }
 
 graph = Py2NeoGraph(**graph_kwargs)
